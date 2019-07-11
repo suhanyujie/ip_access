@@ -9,7 +9,11 @@
 namespace App\Model\Dao\IpAccess;
 
 use Exception;
+use ReflectionException;
+use Swoft\Bean\Exception\ContainerException;
 use Swoft\Db\DB;
+use Swoft\Db\Exception\DbException;
+use Swoft\Stdlib\Collection;
 
 class IpAccessListDao
 {
@@ -22,21 +26,62 @@ class IpAccessListDao
         $this->data['nowTime'] = date('Y-m-d H:i:s');
     }
 
-    public function getList($params=[])
+    /**
+     * 获取数据列表
+     *
+     * @param array $params
+     * @return int|Collection
+     * @throws ReflectionException
+     * @throws ContainerException
+     * @throws DbException
+     */
+    public function getList($params = [])
     {
         $options = [
-            'id'=>0,
-            'ip_str'=>'',
-            'data_status'=>'',
+            'id'          => 0,
+            'ip_str'      => '',
+            'type'        => 1,
+            'data_status' => '',
+            'orderBy'     => [],
+            'isCount'     => 0,
+            'offset'      => 0,
+            'limit'       => 1,
         ];
         $options = array_merge($options, $params);
-        $where = [];
+        $dbObj = DB::table($this->tableName);
         if (!empty($options['id'])) {
-
+            $dbObj = $dbObj->where('id', '=', $options['id']);
         }
+        if (!empty($options['ip_str'])) {
+            $dbObj = $dbObj->where('ip_str', '=', $options['ip_str']);
+        }
+        if (!empty($options['type'])) {
+            $dbObj = $dbObj->where('type', '=', (int)$options['type']);
+        }
+
+        if ($options['isCount'] === 1) {
+            return $dbObj->count();
+        }
+        // 排序
+        if (!empty($options['orderBy']) && is_array($options['orderBy'])) {
+            foreach ($options['orderBy'] as $column => $orderType) {
+                $dbObj = $dbObj->orderBy($column, $orderType);
+            }
+        }
+        $data = $dbObj->skip($options['offset'])->limit($options['limit'])->get();
+        return $data;
     }
 
-    public function add($params=[])
+    /**
+     * 新增数据
+     *
+     * @param array $params
+     * @return array
+     * @throws ReflectionException
+     * @throws ContainerException
+     * @throws DbException
+     */
+    public function add($params = [])
     {
         $nowTime = date('Y-m-d H:i:s');
         $options = [
@@ -47,25 +92,25 @@ class IpAccessListDao
         ];
         $options = array_merge($options, $params);
         if (empty($options['ip_str'])) {
-            return ['status'=>-1, 'msg'=>'缺少参数 ip_str！'];
+            return ['status' => -1, 'msg' => '缺少参数 ip_str！'];
         }
         $isExist = DB::table($this->tableName)->where('ip_str', '=', $options['ip_str'])->first();
         if ($isExist) {
-            return ['status'=>-1, 'msg'=>'这个 ip 数据已存在！'];
+            return ['status' => -1, 'msg' => '这个 ip 数据已存在！'];
         }
         try {
             $isOk = DB::table($this->tableName)->insert($options);
-        }catch (Exception $e) {
-            return ['status'=>$e->getCode(), 'msg'=>$e->getMessage()];
+        } catch (Exception $e) {
+            return ['status' => $e->getCode(), 'msg' => $e->getMessage()];
         }
         if (!$isOk) {
-            return ['status'=>-1, 'msg'=>'新增失败！'];
+            return ['status' => -1, 'msg' => '新增失败！'];
         } else {
-            return ['status'=>1, 'msg'=>'新增成功！'];
+            return ['status' => 1, 'msg' => '新增成功！'];
         }
     }
 
-    public function addAll($params=[])
+    public function addAll($params = [])
     {
 
     }
@@ -76,18 +121,18 @@ class IpAccessListDao
      * @param array $where
      * @param array $params
      * @return array
-     * @throws \ReflectionException
-     * @throws \Swoft\Bean\Exception\ContainerException
-     * @throws \Swoft\Db\Exception\DbException
+     * @throws ReflectionException
+     * @throws ContainerException
+     * @throws DbException
      */
-    public function update($where=[], $params=[])
+    public function update($where = [], $params = [])
     {
         if (empty($params)) {
-            return ['status'=>-1, 'msg'=>'更新数据为空！'];
+            return ['status' => -1, 'msg' => '更新数据为空！'];
         }
         $where = array_filter($where);
         if (empty($where)) {
-            return ['status'=>-1, 'msg'=>'条件参数为空！'];
+            return ['status' => -1, 'msg' => '条件参数为空！'];
         }
         $nowTime = $this->data['nowTime'];
         $options = [
@@ -120,7 +165,7 @@ class IpAccessListDao
      * @param int $isSoft
      * @return array
      */
-    public function delete($id=0, $isSoft=1)
+    public function delete($id = 0, $isSoft = 1)
     {
         try {
             if ((int)$isSoft !== 2) {

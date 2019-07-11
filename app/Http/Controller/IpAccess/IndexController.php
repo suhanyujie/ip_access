@@ -55,12 +55,22 @@ class IndexController extends BaseController
         if (empty($params['ip'])) {
             $result = [
                 'status' => -1,
-                'msg'    => "禁止",
+                'msg'    => "缺少参数！",
             ];
             return $this->json($result);
         }
+        $ips = $this->ipDao->getList([
+            'ip_str' => $params['ip'],
+            'type'   => 1,
+            'limit'  => 1,
+        ]);
+        if (empty($ips)) {
+            $result = ['status'=>-1, 'msg'=>'禁止该 ip'];
+        } else {
+            $result = ['status'=>1, 'msg'=>'允许该 ip'];
+        }
 
-        return $this->json($params);
+        return $this->json($result);
     }
 
     /**
