@@ -9,21 +9,17 @@
 namespace App\Http\Controller\IpAccess;
 
 use App\Http\Controller\BaseController;
-use ReflectionException;
-use Swoft\Context\Context;
-use Swoft\Http\Message\ContentType;
+use App\Http\Middleware\ControllerMiddleware;
+use App\Model\Dao\IpAccess\IpAccessListDao;
+use Swoft\Db\DB;
 use Swoft\Http\Message\Request;
 use Swoft\Http\Message\Response;
 use Swoft\Http\Server\Annotation\Mapping\Controller;
-use Swoft\Http\Server\Annotation\Mapping\RequestMapping;
 use Swoft\Http\Server\Annotation\Mapping\Middleware;
-use Throwable;
-use App\Http\Middleware\ControllerMiddleware;
 use Swoft\Http\Server\Annotation\Mapping\Middlewares;
-use Swoft\Db\DB;
-use App\Model\Entity\MongoPoly\IpAccessList;
+use Swoft\Http\Server\Annotation\Mapping\RequestMapping;
 use Swoft\Http\Server\Annotation\Mapping\RequestMethod;
-use App\Exception\Handler\IpAccess\IpBanExceptionHandler;
+use Throwable;
 
 /**
  * Class IndexController
@@ -36,6 +32,18 @@ use App\Exception\Handler\IpAccess\IpBanExceptionHandler;
 class IndexController extends BaseController
 {
     protected $tableName = 'ip_access_list';
+
+    /**
+     * @var IpAccessListDao
+     */
+    protected $ipDao;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->ipDao = new IpAccessListDao();
+    }
+
     /**
      * ip 检查
      * @RequestMapping(route="/ip/check",method=RequestMethod::POST)
@@ -87,26 +95,39 @@ class IndexController extends BaseController
      * @RequestMapping("/ip/add")
      * @throws Throwable
      */
-    public function add()
+    public function add(Request $request)
     {
-
+        $postData = $request->post();
+        $result = $this->ipDao->add($postData);
+        return $this->json($result);
     }
 
     /**
-     * @RequestMapping("/ip/edit")
+     * 只支持根据主键以及 ip_str 字段 update 数据
+     * @RequestMapping("/ip/update")
      * @throws Throwable
      */
-    public function edit()
+    public function edit(Request $request)
     {
+        $postData = $request->post();
+        $result = $this->ipDao->update([
+            'id' => $postData['id'] ?? null,
+        ], $postData);
 
+        return $this->json($result);
     }
 
     /**
      * @RequestMapping("/ip/delete")
      * @throws Throwable
      */
-    public function delete()
+    public function delete(Request $request)
     {
-
+        $postData = $request->post();
+        $isSoft = $postData['is_soft'] ?? 1;
+        $result = $this->ipDao->delete([
+            'id'=>$postData['id'] ?? 0,
+        ], $isSoft);
+        return $this->json($result);
     }
 }

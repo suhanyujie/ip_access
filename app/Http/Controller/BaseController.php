@@ -13,6 +13,11 @@ use Swoft\Http\Message\ContentType;
 
 class BaseController
 {
+    public function __construct()
+    {
+
+    }
+
     public function json($data=[], $encodeType='')
     {
         if (!empty($encodeType)) {
