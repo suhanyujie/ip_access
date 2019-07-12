@@ -11,6 +11,7 @@ namespace App\Http\Controller\DynCode;
 use App\Http\Controller\BaseController;
 use App\Http\Middleware\ControllerMiddleware;
 use App\Model\Dao\DynCode\CommonDynCodeDao;
+use App\Model\Logic\DynCode\DynCodeIndexLogic;
 use Swoft\Http\Message\Request;
 use Swoft\Http\Server\Annotation\Mapping\Controller;
 use Swoft\Http\Server\Annotation\Mapping\Middleware;
@@ -34,10 +35,16 @@ class IndexController extends BaseController
      */
     protected $dao;
 
+    /**
+     * @var DynCodeIndexLogic
+     */
+    protected $logic;
+
     public function __construct()
     {
         parent::__construct();
         $this->dao = new CommonDynCodeDao();
+        $this->logic = new DynCodeIndexLogic();
     }
 
     /**
@@ -58,6 +65,10 @@ class IndexController extends BaseController
             'status'=>1,
             'data'=>$dynCodeData,
         ];
+        if (empty($dynCodeData) || count($dynCodeData) < 1) {
+            $result['status'] = -1;
+            $result['msg'] = '该用户不存在动态码！';
+        }
         return $this->json($result);
     }
 
@@ -67,8 +78,9 @@ class IndexController extends BaseController
      * @RequestMapping(route="/dc/generateNewDynCode",method=RequestMethod::POST)
      * @throws Throwable
      */
-    public function generateNewDynCode()
+    public function generateNewDynCode(Request $request)
     {
+        $username = $request->post('username','');
 
     }
 

@@ -60,4 +60,19 @@ class CommonDynCodeDao
         $data = $dbObj->skip($options['offset'])->limit($options['limit'])->get();
         return $data;
     }
+
+    public function add($params=[])
+    {
+
+    }
+
+    public function update($where=[],$params=[])
+    {
+
+    }
+
+    public function delete()
+    {
+
+    }
 }
