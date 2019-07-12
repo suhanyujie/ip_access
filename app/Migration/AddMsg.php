@@ -21,6 +21,7 @@ class AddMsg extends BaseMigration
      */
     public function up(): void
     {
+        return;
         $sql = <<<sql
 CREATE TABLE `users` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -39,7 +40,7 @@ sql;
      */
     public function down(): void
     {
-
+        return;
         $dropSql = <<<sql
 drop table if exists `users`;
 sql;

@@ -30,6 +30,7 @@ class AddUser implements MigrationInterface
      */
     public function up(): void
     {
+        return;
         Schema::createIfNotExists('users', function (Blueprint $blueprint) {
             $blueprint->increments('id');
             $blueprint->smallInteger('age');
@@ -51,6 +52,7 @@ class AddUser implements MigrationInterface
      */
     public function down(): void
     {
+        return;
         Schema::dropIfExists('users');
 
         Schema::getSchemaBuilder('db.pool')->dropIfExists('users');

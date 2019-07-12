@@ -50,31 +50,11 @@ return [
         'username' => env('DB1_USER'),
         'password' => env('DB1_PWD'),
         'prefix'   => env('DB1_PREFIX'),
+//        'dbSelector' => bean(DbSelector::class)
     ],
     'db.pool'       => [
         'class'    => Pool::class,
         'database' => bean('db')
-    ],
-    'db2'            => [
-        'class'      => Database::class,
-        'dsn'        => 'mysql:dbname=test2;host=192.168.4.11',
-        'username'   => 'root',
-        'password'   => 'swoft123456',
-        'dbSelector' => bean(DbSelector::class)
-    ],
-    'db2.pool'       => [
-        'class'    => Pool::class,
-        'database' => bean('db2')
-    ],
-    'db3'            => [
-        'class'    => Database::class,
-        'dsn'      => 'mysql:dbname=test2;host=192.168.4.11',
-        'username' => 'root',
-        'password' => 'swoft123456'
-    ],
-    'db3.pool'       => [
-        'class'    => Pool::class,
-        'database' => bean('db3')
     ],
     'migrationManager' => [
         'migrationPath' => '@app/Migration',
