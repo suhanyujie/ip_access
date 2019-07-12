@@ -13,6 +13,7 @@ use Swoft\Server\Swoole\SwooleEvent;
 use Swoft\Task\Swoole\FinishListener;
 use Swoft\Task\Swoole\TaskListener;
 use Swoft\WebSocket\Server\WebSocketServer;
+use App\Http\Middleware\Mongo\DynCodeServiceMiddleware;
 
 return [
     'logger'         => [
@@ -42,6 +43,7 @@ return [
             \App\Http\Middleware\ControllerMiddleware::class,
             // Allow use @View tag
             \Swoft\View\Middleware\ViewMiddleware::class,
+            DynCodeServiceMiddleware::class,
         ],
     ],
     'db' => [
