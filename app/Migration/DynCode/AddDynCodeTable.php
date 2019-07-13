@@ -20,7 +20,7 @@ use Swoft\Devtool\Annotation\Mapping\Migration;
  * Class AddDynCodeTable
  *
  * @package App\Migration\DynCode
- * @Migration(time="20190712174213",pool="db.pool")
+ * @Migration(time="20190712174214",pool="db.pool")
  */
 class AddDynCodeTable implements MigrationInterface
 {
@@ -38,6 +38,7 @@ class AddDynCodeTable implements MigrationInterface
             $blueprint->string('app', 20)->comment("属于哪个应用，如 用户、订单、权限等等");// 属于哪个应用，如 用户、订单、权限等等
             $blueprint->string('username', 20)->comment("登陆的用户名");
             $blueprint->dateTime('exp_time')->comment("动态码过期时间");
+            $blueprint->tinyInteger('verify_flag')->default(2)->comment("验证标识 1表示验证通过");
             $blueprint->tinyInteger('data_status')->comment("数据是否有效");
             $blueprint->dateTime('add_time')->comment("新增时间");
             $blueprint->dateTime('update_time')->comment("数据更新时间");

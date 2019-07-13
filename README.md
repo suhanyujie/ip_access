@@ -51,3 +51,9 @@
 |:-----|:-----|:-----|:-----|
 | `id` | ip 信息主键| 1  | 无|
 | `is_soft` | 是否软删除 1表示软删除；0表示硬删除；默认软删除| 0  | 无|
+
+## 其他
+
+### telegram 获取 channel 或者 group 的 id
+* https://api.telegram.org/bot{botId}/getUpdates
+* 参考 https://stackoverflow.com/questions/32423837/telegram-bot-how-to-get-a-group-chat-id

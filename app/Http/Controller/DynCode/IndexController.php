@@ -12,6 +12,7 @@ use App\Http\Controller\BaseController;
 use App\Http\Middleware\ControllerMiddleware;
 use App\Model\Dao\DynCode\CommonDynCodeDao;
 use App\Model\Logic\DynCode\DynCodeIndexLogic;
+use App\Model\Logic\Tg\MessageLogic;
 use Swoft\Http\Message\Request;
 use Swoft\Http\Server\Annotation\Mapping\Controller;
 use Swoft\Http\Server\Annotation\Mapping\Middleware;
@@ -40,6 +41,8 @@ class IndexController extends BaseController
      */
     protected $logic;
 
+    protected $data = [];
+
     public function __construct()
     {
         parent::__construct();
@@ -48,61 +51,84 @@ class IndexController extends BaseController
     }
 
     /**
-     * 检查用户是否需要新的动态码
+     * 检查用户动态码是否可用
+     * 检查用户是否需要新的动态码。过期的动态码、尚未生成动态码都需要生成动态码的条件
      *
-     * @RequestMapping(route="/dc/checkNeedNewDynCode",method=RequestMethod::GET)
+     * @RequestMapping(route="/dc/checkNeedNewDynCode",method={RequestMethod::GET})
      * @throws Throwable
      */
     public function checkNeedNewDynCode(Request $request)
     {
         $username = $request->get('username', '');
-        $dynCodeData = $this->dao->getList([
-            'username' => $username,
-            'orderBy'=>['id'=>'desc'],
-            'limit'    => 1,
+        $result = $this->logic->checkDynCodeIsOk([
+            'username'=>$username,
         ]);
-        $result = [
-            'status'=>1,
-            'data'=>$dynCodeData,
-        ];
-        if (empty($dynCodeData) || count($dynCodeData) < 1) {
-            $result['status'] = -1;
-            $result['msg'] = '该用户不存在动态码！';
-        }
+
         return $this->json($result);
     }
 
     /**
-     * 生成新的动态码
+     * 生成新的动态码。不仅生成动态码，还有相关的信息
      *
      * @RequestMapping(route="/dc/generateNewDynCode",method=RequestMethod::POST)
      * @throws Throwable
      */
     public function generateNewDynCode(Request $request)
     {
-        $username = $request->post('username','');
+        $result = $this->logic->generateDynCodeInfo([
+            'app'      => $request->post('app', ''),
+            'username' => $request->post('username', ''),
+        ]);
 
+        return $this->json($result);
     }
 
     /**
-     * 验证动态码是否正确，正确后，标识缓存为：已验证
+     * 验证用户输入的动态码是否正确，正确后，标识缓存为：已验证
      *
      * @RequestMapping(route="/dc/verifyDynCode",method=RequestMethod::POST)
      * @throws Throwable
      */
-    public function verifyDynCode()
+    public function verifyDynCode(Request $request)
     {
-
+        $app = $request->post('app','');
+        $username = $request->post('username','');
+        $dynCode = $request->post('dynCode','');
+        $result = $this->logic->verifyDynCode([
+            'app'      => $app,
+            'username' => $username,
+            'dynCode'  => $dynCode,
+        ]);
+        return $this->json($result);
     }
 
     /**
-     * 验证动态码是否可用，是否在有效期内，一个动态码有效期 5min
+     * 验证动态码是否在有效期内，一个动态码有效期 5min
+     * 先确定该用户的动态码是否存在，在确定其动态码是在有效期内
      *
-     * @RequestMapping(route="/dc/checkDynCodeIsOk",method=RequestMethod::POST)
+     * @RequestMapping(route="/dc/checkDynCodeExpTime",method=RequestMethod::POST)
      * @throws Throwable
      */
-    public function checkDynCodeIsOk()
+    public function checkDynCodeExpTime(Request $request)
     {
+        $username = $request->post('username','');
+        $result = $this->logic->checkDynCodeExpTime([
+            'username'=>$username,
+        ]);
+        return $this->json($result);
+    }
 
+    /**
+     * @RequestMapping(route="/dc/sendTgMsg",method=RequestMethod::POST)
+     * @throws Throwable
+     */
+    public function sendTgMsg(Request $request)
+    {
+        // input 中包含 message 字段
+        $input = $request->post();
+        $result = MessageLogic::sendSecurityCodeToTgChannel([
+            'message'=>$input['message'],
+        ]);
+        return $this->json($result);
     }
 }
