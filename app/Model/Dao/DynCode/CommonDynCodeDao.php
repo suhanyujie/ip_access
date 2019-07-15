@@ -89,6 +89,7 @@ class CommonDynCodeDao
         if (empty($options['exp_time'])) {
             return ['status'=>-12, 'msg'=>'缺少参数'];
         }
+        $this->data['nowTime'] = date('Y-m-d H:i:s');
         $dbObj = DB::table($this->tableName);
         $isOk = $dbObj->insert([
             'app'         => $options['app'],
@@ -113,7 +114,7 @@ class CommonDynCodeDao
         if (empty($where)) {
             return ['status' => -1, 'msg' => '条件参数为空！'];
         }
-        $nowTime = $this->data['nowTime'];
+        $nowTime = date('Y-m-d H:i:s');
         $options = [
             'verify_flag' => '',
             'update_time' => $nowTime,
