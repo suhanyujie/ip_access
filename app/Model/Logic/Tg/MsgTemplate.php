@@ -11,6 +11,12 @@ namespace App\Model\Logic\Tg;
 
 class MsgTemplate
 {
+    /**
+     * 补单动态码模板
+     *
+     * @param array $params
+     * @return string
+     */
     public static function getMessageSimpleStyle($params=[]):string
     {
         $options = [
@@ -19,7 +25,10 @@ class MsgTemplate
             'code'     => '',
         ];
         $options = array_merge($options, $params);
+        $username = $options['userName'];
+        $patttern = '@(\w{3})\w{4}(\w{0,})@';
+        $username = preg_replace($patttern, '$1****$2', $username, 1);
 
-        return "【app:{$options['app']}】用户 {$options['userName']}，正在申请动态码，动态码： {$options['code']}";
+        return "【app:{$options['app']}】用户 {$username}，正在申请补单动态码，动态码： {$options['code']}";
     }
 }
