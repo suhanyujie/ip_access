@@ -1,3 +1,20 @@
+## 一些服务
+
+## requirements
+* [swoole 4.3.5](https://github.com/swoole/swoole-src/releases/tag/v4.3.5)
+* redis 扩展 https://pecl.php.net/package/redis
+
+## install
+* composer install
+
+### 启动
+* `php bin/swoft -h` 查看相关命令
+
+## 常见问题
+### 提示
+* 错误提示为 Fatal error: Uncaught ErrorException: Uncaught Swoole\Error: API must be called in the coroutine in 
+* 此时 `./bin/swoft` 文件中注释掉 `\Swoole\Runtime::enableCoroutine();`
+
 ## ip access
 * 基于 [swoft 2](https://www.swoft.org/docs/2.x/zh-CN) 的 ip 访问控制服务
 
